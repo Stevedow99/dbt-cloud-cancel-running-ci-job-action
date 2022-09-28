@@ -1,0 +1,30 @@
+name: "dbt Cloud Dynamic PR Job Cancel Action"
+description: "This actions checks if a dbt cloud CI job is running after a new or updated PR is made. If there is a job running it will cancel it in order to kick of the new CI job"
+branding:
+  icon: "cloud"
+  color: "orange"
+author: "Steve Dowling"
+inputs:
+  dbt_cloud_token:
+    description: dbt Cloud API token
+    required: true
+  dbt_cloud_account_id:
+    description: dbt Cloud account ID
+    required: true
+  dbt_cloud_job_id:
+    description: dbt Cloud Job ID
+    required: true
+  dbt_cloud_host:
+    description: the host url used for the dbt Cloud account, by default cloud.getdbt.com is used
+    required: false
+    default: "cloud.getdbt.com"
+outputs:
+  cancelled_jobs_flag:
+    description: "Returns True if a job or jobs was cancelled, False is no jobs were cancelled"
+  cancelled_dbt_cloud_job_runs:
+    description: "Returns the cancelled job run ids in a list e.g. ['12345', '56789']"
+  cancelled_dbt_cloud_job_markdown:
+    description: "Pre-Scripted markdown containing info on the cancelled jobs, can be used in PR comments"
+runs:
+  using: "docker"
+  image: "Dockerfile"
