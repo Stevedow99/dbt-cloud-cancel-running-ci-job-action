@@ -82,10 +82,14 @@ def cancel_dbt_cloud_job(base_url, headers, run_id):
     dbt_cloud_run_cancel = f"{base_url}/runs/{run_id}/cancel"
 
     # get status of cancelled job
-    cancelled_dbt_cloud_run = requests.post(dbt_cloud_run_cancel, headers=headers, timeout=30).json()["data"]
+    cancelled_dbt_cloud_run = requests.post(dbt_cloud_run_cancel, headers=headers, timeout=30).json()
 
     # get run cancelled time, dbt api returns ["data"] ["data"] that's why we have an extra ["data"] 
-    run_cancelled_timestamp = cancelled_dbt_cloud_run["data"]["finished_at"][:19]
+    # need to hash this out with the API on why this is happening. For now, the try except works
+    try:
+        run_cancelled_timestamp = cancelled_dbt_cloud_run["data"]["finished_at"][:19]
+    except:
+        run_cancelled_timestamp = cancelled_dbt_cloud_run["data"]["data"]["finished_at"][:19]
 
     # returning the run status
     return run_cancelled_timestamp
