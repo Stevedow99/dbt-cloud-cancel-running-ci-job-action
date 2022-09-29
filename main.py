@@ -142,7 +142,7 @@ def main():
             cancelled_runs_output.append(run['run_id'])
 
             # adding info on cancelled run
-            pr_comment_markdown_code += f"\n * Run **{run['run_id']}** was cancelled at **{run['run_cancelled_timestamp']} UTC**, view this run in dbt Cloud [here]({run['run_url']})"
+            pr_comment_markdown_code += f"<br> * Run **{run['run_id']}** was cancelled at **{run['run_cancelled_timestamp']} UTC**, view this run in dbt Cloud [here]({run['run_url']})"
 
         # setting the output of the cancelled_dbt_cloud_job_runs
         print(f"::set-output name=cancelled_dbt_cloud_job_runs::{cancelled_runs_output}")
