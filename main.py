@@ -46,11 +46,11 @@ run_status_map = {
 def get_recent_runs_for_job(base_url, headers, job_id):
 
     # setting the request url
-    dbt_cloud_runs_url = f"{base_url}/runs/?job_definition_id={job_id}"
+    dbt_cloud_runs_url = f"{base_url}/runs/?job_definition_id={job_id}&order_by=-id"
 
     # getting the last four runs excluding the most recent one as that is the current qued job
     # this assumes the job being triggered is the most recent job
-    recent_runs = requests.get(dbt_cloud_runs_url, headers=headers, timeout=30).json()['data'][-5:-1]
+    recent_runs = requests.get(dbt_cloud_runs_url, headers=headers, timeout=30).json()['data'][1:6]
     
     # setting an empty list to populate with run_ids and statues
     recent_runs_info = []
@@ -103,7 +103,7 @@ def main():
     most_recent_runs = get_recent_runs_for_job(base_url=base_dbt_cloud_api_url, headers=req_auth_headers, job_id=dbt_cloud_job_id)
 
     # setting up an intial wait period just in case the job takes some time to kick off
-    time.sleep(1)
+    time.sleep(10)
 
     # creating a list to collect all cancelled runs
     cancelled_runs = []
@@ -148,7 +148,7 @@ def main():
         print(f"::set-output name=cancelled_dbt_cloud_job_runs::{cancelled_runs_output}")
 
         # setting the output of the cancelled_dbt_cloud_job_markdown
-        print(f"::set-output name=cancelled_dbt_cloud_job_markdown::{pr_comment_markdown_code}")
+        print(f"::set-output name=cancelled_dbt_cloud_job_runs_markdown::{pr_comment_markdown_code}")
 
     # else we set the cancelled_jobs_flag to False
     else:
