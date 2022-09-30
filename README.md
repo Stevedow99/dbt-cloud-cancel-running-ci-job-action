@@ -32,12 +32,12 @@ ___
 - `cancelled_jobs_flag` - A returned flag that is outputted as `True` if running/queued job runs were cancelled in order to kick off a CI job for the latest commit. Returns `False` if no job runs were running/queued and therefore didn't need to be cancelled.
 - `cancelled_dbt_cloud_job_runs` - A list of dbt Cloud run IDs for the given job that were cancelled in order to kick off a CI job for the latest commit. (e.g. `[85660002, 85660002]`). This is useful for logging. 
 - `cancelled_dbt_cloud_job_runs_markdown` - Pre-Scripted markdown containing info on the cancelled jobs, can be used in PR comments. Example of a scenario where 4 job runs where cancelled this is the markdown output:
-    ```
+    ```md
     **The following dbt Cloud job runs were cancelled to free up the queue for the new CI job on the current PR:**
-    * Run **85519539** was cancelled at **2022-09-29 23:32:44 UTC**, view this run in dbt Cloud [here](https://cloud.getdbt.com/next/deploy/12345/projects/161955/runs/85519539/)
-    * Run **85519497** was cancelled at **2022-09-29 23:32:45 UTC**, view this run in dbt Cloud [here](https://cloud.getdbt.com/next/deploy/12345/projects/161955/runs/85519497/)
-    * Run **85519494** was cancelled at **2022-09-29 23:32:46 UTC**, view this run in dbt Cloud [here](https://cloud.getdbt.com/next/deploy/12345/projects/161955/runs/85519494/)
-    * Run **85519490** was cancelled at **2022-09-29 23:32:46 UTC**, view this run in dbt Cloud [here](https://cloud.getdbt.com/next/deploy/12345/projects/161955/runs/85519490/) 
+    - Run **85519539** was cancelled at **2022-09-29 23:32:44 UTC**, view this run in dbt Cloud [here](https://cloud.getdbt.com/next/deploy/12345/projects/161955/runs/85519539/)
+    - Run **85519497** was cancelled at **2022-09-29 23:32:45 UTC**, view this run in dbt Cloud [here](https://cloud.getdbt.com/next/deploy/12345/projects/161955/runs/85519497/)
+    - Run **85519494** was cancelled at **2022-09-29 23:32:46 UTC**, view this run in dbt Cloud [here](https://cloud.getdbt.com/next/deploy/12345/projects/161955/runs/85519494/)
+    - Run **85519490** was cancelled at **2022-09-29 23:32:46 UTC**, view this run in dbt Cloud [here](https://cloud.getdbt.com/next/deploy/12345/projects/161955/runs/85519490/) 
     ```
 
 ___
@@ -76,7 +76,7 @@ jobs:
         uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.0
         with:
           dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
-          dbt_cloud_account_id: 96504
+          dbt_cloud_account_id: 12345
           dbt_cloud_job_id: 130247
 ```
 ___
@@ -134,7 +134,7 @@ jobs:
 
 ### Example using workflow to cancel job runs and then post information about the cancelled job runs in a PR comment 
 
-This workflow will produce a PR comment that looks like this job runs are cancelled:
+This workflow will produce a PR comment that looks like this when job runs are cancelled:
 
 ![image](./documentation_pics/image_1.png)
 
