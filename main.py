@@ -104,6 +104,9 @@ def get_recent_runs_for_job(base_url, headers, job_id):
         
             # getting the github branch name of the run using the get_github_branch_from_dbt_run_sha function
             run_github_branch_name = get_github_branch_from_dbt_run_sha(run_git_sha, pr_repo_name, github_api_token)
+
+            # appending the elements to the list
+            recent_runs_info.append({"run_id" : run_id, "run_status" : run_status, "run_url" : run_url, "run_git_sha" : run_git_sha, "run_github_branch_name" : run_github_branch_name })
             
         # if it's set to False we use a dummy branch name
         else:
@@ -111,8 +114,8 @@ def get_recent_runs_for_job(base_url, headers, job_id):
             # setting a (somewhat) dummy branch name
             run_github_branch_name = f"branch relating to sha: {run_git_sha}"
         
-        # appending the elements to the list
-        recent_runs_info.append({"run_id" : run_id, "run_status" : run_status, "run_url" : run_url, "run_git_sha" : run_git_sha, "run_github_branch_name" : run_github_branch_name })
+            # appending the elements to the list
+            recent_runs_info.append({"run_id" : run_id, "run_status" : run_status, "run_url" : run_url, "run_git_sha" : run_git_sha, "run_github_branch_name" : run_github_branch_name })
 
     return recent_runs_info
 
