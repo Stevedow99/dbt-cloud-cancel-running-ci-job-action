@@ -181,7 +181,7 @@ def main():
         print(f"::set-output name=cancelled_jobs_flag::True")
 
         # generating some markdown to use for PR comments
-        pr_comment_markdown_code = "**The following dbt Cloud job runs were cancelled to free up the queue for the new CI job on the current PR:**"
+        pr_comment_markdown_code = f"**The following dbt Cloud job runs were cancelled to free up the queue for the new CI job on the current PR:** {same_branch_flag} {type(same_branch_flag)}"
 
         # setting a blank string for cancelled
         cancelled_runs_output = []
