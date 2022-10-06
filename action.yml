@@ -18,6 +18,14 @@ inputs:
     description: the host url used for the dbt Cloud account, by default cloud.getdbt.com is used
     required: false
     default: "cloud.getdbt.com"
+  only_cancel_run_if_commit_is_using_pr_branch:
+     description: "A flag that can be set to True or False. If set to true the action will only cancel runs that are based on the same pr"
+    required: false
+    default: "False"
+  github_repo_token: 
+    description: "A GitHub token for API access - required if only_cancel_run_if_commit_is_using_pr_branch is set to True"
+    required: false
+
 outputs:
   cancelled_jobs_flag:
     description: "Returns True if a job or jobs was cancelled, False is no jobs were cancelled"
