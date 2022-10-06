@@ -21,7 +21,7 @@ inputs:
   only_cancel_run_if_commit_is_using_pr_branch:
     description: "A flag that can be set to True or False. If set to true the action will only cancel runs that are based on the same pr"
     required: false
-    default: "False"
+    default:  false
   github_repo_token: 
     description: "A GitHub token for API access - required if only_cancel_run_if_commit_is_using_pr_branch is set to True"
     required: false

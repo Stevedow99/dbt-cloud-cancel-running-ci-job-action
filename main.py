@@ -19,7 +19,7 @@ dbt_cloud_job_id = os.environ["INPUT_DBT_CLOUD_JOB_ID"]
 dbt_cloud_host = os.environ.get('INPUT_DBT_CLOUD_HOST', 'cloud.getdbt.com')
 
 # getting the flag only_cancel_run_if_commit_is_using_pr_branch 
-same_branch_flag = os.environ.get('INPUT_ONLY_CANCEL_RUN_IF_COMMIT_IS_USING_PR_BRANCH', 'False')
+same_branch_flag = os.environ.get('INPUT_ONLY_CANCEL_RUN_IF_COMMIT_IS_USING_PR_BRANCH', False)
 
 # getting the github api token - if only_cancel_run_if_commit_is_using_pr_branch ss set to True, this is used
 github_api_token = "token " + os.environ.get('INPUT_GITHUB_REPO_TOKEN', 'not_needed')
@@ -99,7 +99,7 @@ def get_recent_runs_for_job(base_url, headers, job_id):
         run_git_sha = run['git_sha']
 
         # if the same branch flag is set to true we look up the name of the github branch the run was triggered on
-        if same_branch_flag == "True" and run_git_sha != None:
+        if same_branch_flag == True and run_git_sha != None:
         
             # getting the github branch name of the run using the get_github_branch_from_dbt_run_sha function
             run_github_branch_name = get_github_branch_from_dbt_run_sha(run_git_sha, pr_repo_name, github_api_token)
@@ -154,7 +154,7 @@ def main():
     cancelled_runs = []
 
     # if the same_branch_flag is True we filter to just runs on the same branch as the PR
-    if same_branch_flag == "True":
+    if same_branch_flag == True:
 
         # rebuilding the list with just runs with the same branch
         most_recent_runs = [run for run in most_recent_runs if run['run_github_branch_name'] == pr_branch_name]
