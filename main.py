@@ -66,8 +66,9 @@ def get_github_branch_from_dbt_run_sha(sha, repo, github_token):
     
     sha_info = requests.get(github_api_url, headers=headers).json()
     
-    return sha_info[0]['head']['ref']
-
+    sha_branch_name = sha_info[0]['head']['ref'] if len(sha_info) > 0 else 'deleted_branch'
+    
+    return sha_branch_name
 
 # -------------------------------------------------------------------------------------------------------
 # creating a function that takes the recent runs and filters them down depending on the same branch flag
@@ -114,8 +115,11 @@ def extract_dbt_runs_info(recent_runs_list, same_branch_flag):
             # we add recent runs to the list regardless of branch name
             recent_runs_info.append({"run_id" : run_id, "run_status" : run_status, "run_url" : run_url, "run_git_sha" : run_git_sha})
         
-    # removing the first fun as this will be the one that was triggered
-    recent_runs_info.pop(0)
+    # removing the first fun as this will be the one that was triggered, assuming there are CI runs for the given input
+    if len(recent_runs_info) > 0:
+       
+       # removing the most current run
+       recent_runs_info.pop(0)
     
     # returning the list of run info 
     return recent_runs_info
@@ -167,7 +171,7 @@ def cancel_dbt_cloud_job(base_url, headers, run_id):
 def main():
 
     # setting up an intial wait period just in case the job takes some time to kick off
-    time.sleep(10)
+    time.sleep(1)
 
     # getting the most recent runs of the given job
     most_recent_runs = get_recent_runs_for_job(base_url=base_dbt_cloud_api_url, headers=req_auth_headers, job_id=dbt_cloud_job_id, same_branch_flag=same_branch_flag)
