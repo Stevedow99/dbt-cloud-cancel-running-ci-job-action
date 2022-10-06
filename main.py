@@ -31,7 +31,6 @@ pr_branch_name = os.environ.get('GITHUB_HEAD_REF', 'a_branch_name')
 pr_repo_name = os.environ.get('GITHUB_REPOSITORY', 'a_repo_name')
 
 
-
 # ------------------------------------------------------------------------------
 # use environment variables to set dbt cloud api configuration
 # ------------------------------------------------------------------------------
