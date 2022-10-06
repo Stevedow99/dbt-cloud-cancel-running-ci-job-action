@@ -8,20 +8,33 @@ Some scenarios where this is useful:
 - You have longer running CI jobs in your dbt Cloud project and you don't want new commits to get queued when they are replacing stale code that is still running in a previous CI job
 - You have a large team where there is constant commits/PRs against the code base and you always want the latest job to be run without waiting for older jobs to finish
 
-Future improvement to this action: 
-- The ability to set a flag that will only run the action if the commit is against the same PR as a running/queued job. For example, in some cases you may only want to run this action if you made a commit to branch `branch_one` and then 2 minutes made another commit to `branch_one` causing the PR checks to run again. Default behavior with the action today will do this but it will also cancel a CI job running for `branch_one` if someone opens a PR and kicks off a CI job run for `branch_two` which may not be desired in some team workflows. 
+___
 
+__Updates in `v1.1`__
+- You now have the ability to leverage the `only_cancel_run_if_commit_is_using_pr_branch` flag:
+  - When this flag is set to `true`, CI jobs will only get cancelled if the branch that the CI job is running off of is the same as the branch the PR is using 
+  - Example of using this: If someone kicks off a CI run based off the branch `branch_1` and then someone else kicks off a CI run based on the branch `branch_2` 
+    - When this flag is set to `true` the GitHub Action triggered via the PR on `branch_2` **will not** cancel the CI run based on `branch_1`
+    - When this flag is set to `false` (or not set at all) the GitHub Action **will** cancel the run based on `branch_1` as it doesn't care if the branch is related to the newest PR or not - the behavior is to always get the lastest CI job running regardless of branch
+  - When this flag is set to `true` it requires that the input `github_repo_token` be configured as this feature leverages the GitHub API
 ___
 
 ## **Inputs**
 
-### Credentials
+### Required Inputs
 
 - `dbt_cloud_token` - dbt Cloud [API token](https://docs.getdbt.com/docs/dbt-cloud/dbt-cloud-api/service-tokens)
 - `dbt_cloud_account_id` - dbt Cloud Account ID
 - `dbt_cloud_job_id` - dbt Cloud Job ID
 
-### Optional Credentials
+### Optional Inputs
+- `only_cancel_run_if_commit_is_using_pr_branch` - A flag that can be set to `true` or `false`
+  - When this flag is set to `true`, CI jobs will only get cancelled if the branch that the CI job is running off of is the same as the branch the PR is using 
+   - Example of using this: If someone kicks off a CI run based off the branch `branch_1` and then someone else kicks off a CI run based on the branch `branch_2` 
+      - When this flag is set to `true` the GitHub Action triggered via the PR on `branch_2` **will not** cancel the CI run based on `branch_1`
+      - When this flag is set to `false` (or not set at all) the GitHub Action **will** cancel the run based on `branch_1` as it doesn't care if the branch is related to the newest PR or not - the behavior is to always get the lastest CI job running regardless of branch
+  - **When this flag is set to `true` it requires that the input `github_repo_token` be configured as this feature leverages the GitHub API**
+- `github_repo_token` - A GitHub API token, in most cases `${{ secrets.GITHUB_TOKEN }}` can be used for this input without having to set GitHub Action secret for the actual token since the action can recognize the repo it's working within. _This is only needed if `only_cancel_run_if_commit_is_using_pr_branch` is set to `true`_
 - `dbt_cloud_host` - the URL of the dbt cloud account with, by default `cloud.getdbt.com` is used
 
 It's recommend to pass sensitive variables as GitHub secrets. [Example article on how to use Github Action secrets](https://www.theserverside.com/blog/Coffee-Talk-Java-News-Stories-and-Opinions/GitHub-Actions-Secrets-Example-Token-Tutorial)
@@ -44,6 +57,48 @@ ___
 
 
 ## **Creating a workflow**
+
+### A workflow using the `only_cancel_run_if_commit_is_using_pr_branch` flag
+
+```yaml
+# This is a basic workflow to show using this action
+
+# name of the workflow
+name: Cancel Running Slim CI Job Runs If New Commit is Made
+
+# Controls when the workflow will run
+on:
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab if needed
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+
+  # This workflow contains a single job called "cancel_running_slim_ci_jobs"
+  cancel_running_slim_ci_jobs:
+  
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+
+      # running the step to cancel another other CI job runs that are running except the latest
+      - name: Cancel another other CI runs that are running except the latest run
+        id: cancel_stale_ci_runs
+        uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.0
+        with:
+          dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
+          dbt_cloud_account_id: 12345
+          dbt_cloud_job_id: 130247
+          only_cancel_run_if_commit_is_using_pr_branch: true
+          github_repo_token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### A workflow not using the `only_cancel_run_if_commit_is_using_pr_branch` flag
 ```yaml
 # This is a basic workflow to show using this action
 
@@ -121,6 +176,8 @@ jobs:
           dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
           dbt_cloud_account_id: 12345
           dbt_cloud_job_id: 130247
+          only_cancel_run_if_commit_is_using_pr_branch: true
+          github_repo_token: ${{ secrets.GITHUB_TOKEN }}
           
       # logging if there was a job run(s) cancelled or not
       - name: Logging if there was a CI run that was cancelled
@@ -176,6 +233,8 @@ jobs:
           dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
           dbt_cloud_account_id: 12345
           dbt_cloud_job_id: 130247
+          only_cancel_run_if_commit_is_using_pr_branch: true
+          github_repo_token: ${{ secrets.GITHUB_TOKEN }}
           
       # logging if there was a job run(s) cancelled or not
       - name: Logging if there was a CI run that was cancelled
