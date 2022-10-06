@@ -94,7 +94,7 @@ def extract_dbt_runs_info(recent_runs_list, same_branch_flag):
         run_git_sha = run['trigger']['git_sha']
 
         # checking if the same branch flag is set to true
-        if same_branch_flag == "True": 
+        if same_branch_flag == "true": 
 
                 # making sure the sha isn't none before passing to the github api
                 if run_git_sha != None:
@@ -167,7 +167,7 @@ def cancel_dbt_cloud_job(base_url, headers, run_id):
 def main():
 
     # setting up an intial wait period just in case the job takes some time to kick off
-    time.sleep(1)
+    time.sleep(10)
 
     # getting the most recent runs of the given job
     most_recent_runs = get_recent_runs_for_job(base_url=base_dbt_cloud_api_url, headers=req_auth_headers, job_id=dbt_cloud_job_id, same_branch_flag=same_branch_flag)
