@@ -1,9 +1,9 @@
-name: "dbt Cloud Cancel Running CI Job Runs Action"
+name: "dbt Cloud Cancel CI Job Runs Action"
 description: "Checks if a dbt cloud CI job is running after a new/updated PR is made, cancels stale runs to kick of the new CI job run"
 branding:
   icon: "cloud"
   color: "orange"
-author: "Steve Dowling"
+author: "Steve Dowling (modifications by Thomas Monnier)"
 inputs:
   dbt_cloud_token:
     description: dbt Cloud API token
