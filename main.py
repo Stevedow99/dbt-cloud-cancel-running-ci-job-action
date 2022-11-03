@@ -84,6 +84,8 @@ def extract_dbt_runs_info(recent_runs_list, same_branch_flag):
         if same_branch_flag == "true":
 
             run_git_pr_number = run['trigger']['github_pull_request_id']
+
+            print("PR Number: {}".format(run_git_pr_number))
             
             # making sure the pr number isn't none before comparing to pr_branch_number
             if run_git_pr_number != None:
