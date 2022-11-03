@@ -24,6 +24,7 @@ inputs:
   max_runs:
     description: the maximum number of recent runs
     required: false
+    default: "10"
   only_cancel_run_if_commit_is_using_pr_branch:
     description: "A flag that can be set to True or False. If set to true the action will only cancel runs that are based on the same pr"
     required: false
