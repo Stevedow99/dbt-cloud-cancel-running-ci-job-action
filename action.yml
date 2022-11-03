@@ -18,6 +18,12 @@ inputs:
     description: the host url used for the dbt Cloud account, by default cloud.getdbt.com is used
     required: false
     default: "cloud.getdbt.com"
+  github_pr_number:
+    description: the number of the PR
+    required: true
+  max_runs:
+    description: the maximum number of recent runs
+    required: false
   only_cancel_run_if_commit_is_using_pr_branch:
     description: "A flag that can be set to True or False. If set to true the action will only cancel runs that are based on the same pr"
     required: false

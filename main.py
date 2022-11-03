@@ -22,11 +22,14 @@ dbt_cloud_host = os.environ.get('INPUT_DBT_CLOUD_HOST', 'cloud.getdbt.com')
 # one note on this is in YAML it's passed as a bool aka true and in python it comes in as a string
 same_branch_flag = os.environ.get('INPUT_ONLY_CANCEL_RUN_IF_COMMIT_IS_USING_PR_BRANCH', 'false')
 
+# getting the maximum number of recent jobs
+max_runs = os.environ.get('INPUT_MAX_RUNS', '10')
+
 # getting the github api token - if only_cancel_run_if_commit_is_using_pr_branch ss set to True, this is used
 github_api_token = "token " + os.environ.get('INPUT_GITHUB_REPO_TOKEN', 'not_needed')
 
-# getting the name of the github branch the PR is on - if only_cancel_run_if_commit_is_using_pr_branch ss set to True, this is used
-pr_branch_name = os.environ.get('GITHUB_HEAD_REF', 'a_branch_name')
+# getting the number of the github branch the PR is on - if only_cancel_run_if_commit_is_using_pr_branch ss set to True, this is used
+pr_branch_number = os.environ["INPUT_GITHUB_PR_NUMBER"]
 
 # getting the name of the github repo the PR is on - if only_cancel_run_if_commit_is_using_pr_branch is set to True, this is used
 pr_repo_name = os.environ.get('GITHUB_REPOSITORY', 'a_repo_name')
@@ -53,23 +56,6 @@ run_status_map = {
   30: 'Cancelled',
 }
 
-# -----------------------------------------------------------------------------------------------------
-# setting a function to take the returned sha from the dbt cloud api and look up the GitHub branch name
-# only used if only_cancel_run_if_commit_is_using_pr_branch is set to True
-# -----------------------------------------------------------------------------------------------------
-
-def get_github_branch_from_dbt_run_sha(sha, repo, github_token):
-    
-    headers = {'Authorization': github_token}
-    
-    github_api_url = f"https://api.github.com/repos/{repo}/commits/{sha}/pulls"
-    
-    sha_info = requests.get(github_api_url, headers=headers).json()
-    
-    sha_branch_name = sha_info[0]['head']['ref'] if len(sha_info) > 0 else 'deleted_branch'
-    
-    return sha_branch_name
-
 # -------------------------------------------------------------------------------------------------------
 # creating a function that takes the recent runs and filters them down depending on the same branch flag
 # -------------------------------------------------------------------------------------------------------
@@ -95,19 +81,18 @@ def extract_dbt_runs_info(recent_runs_list, same_branch_flag):
         run_git_sha = run['trigger']['git_sha']
 
         # checking if the same branch flag is set to true
-        if same_branch_flag == "true": 
+        if same_branch_flag == "true":
 
-                # making sure the sha isn't none before passing to the github api
-                if run_git_sha != None:
+            run_git_pr_number = run['trigger']['github_pull_request_id']
+            
+            # making sure the pr number isn't none before comparing to pr_branch_number
+            if run_git_pr_number != None:
 
-                    # getting the github branch name of the run using the get_github_branch_from_dbt_run_sha function
-                    run_github_branch_name = get_github_branch_from_dbt_run_sha(run_git_sha, pr_repo_name, github_api_token)
+                # if the PR branch number matches the PR branch number of the branch that the job was run on - we put it into the runs list
+                if run_git_pr_number == pr_branch_number:
 
-                # if the PR branch matches the name of the branch that the job was run on - we put it into the runs list
-                    if run_github_branch_name == pr_branch_name:
-
-                        # appending the elements to the list
-                        recent_runs_info.append({"run_id" : run_id, "run_status" : run_status, "run_url" : run_url, "run_git_sha" : run_git_sha, "run_github_branch_name" : run_github_branch_name })
+                    # appending the elements to the list
+                    recent_runs_info.append({"run_id" : run_id, "run_status" : run_status, "run_url" : run_url, "run_git_sha" : run_git_sha, "run_github_pr_number" : run_git_pr_number })
 
         # else if the same branch flag is not set to true
         else:
@@ -128,10 +113,10 @@ def extract_dbt_runs_info(recent_runs_list, same_branch_flag):
 # setting a function to return the most recent runs for a given job
 # ------------------------------------------------------------------------------
 
-def get_recent_runs_for_job(base_url, headers, job_id, same_branch_flag):
+def get_recent_runs_for_job(base_url, headers, job_id, same_branch_flag, max_runs):
 
     # setting the request url
-    dbt_cloud_runs_url = f'{base_url}/runs/?job_definition_id={job_id}&order_by=-id&include_related=["trigger"]&limit=10'
+    dbt_cloud_runs_url = f'{base_url}/runs/?job_definition_id={job_id}&order_by=-id&include_related=["trigger"]&limit={max_runs}'
 
     # getting the last four runs excluding the most recent one as that is the current qued job
     # this assumes the job being triggered is the most recent job
@@ -174,7 +159,7 @@ def main():
     time.sleep(10)
 
     # getting the most recent runs of the given job
-    most_recent_runs = get_recent_runs_for_job(base_url=base_dbt_cloud_api_url, headers=req_auth_headers, job_id=dbt_cloud_job_id, same_branch_flag=same_branch_flag)
+    most_recent_runs = get_recent_runs_for_job(base_url=base_dbt_cloud_api_url, headers=req_auth_headers, job_id=dbt_cloud_job_id, same_branch_flag=same_branch_flag, max_runs=max_runs)
 
     # creating a list to collect all cancelled runs
     cancelled_runs = []
