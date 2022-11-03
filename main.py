@@ -88,9 +88,6 @@ def extract_dbt_runs_info(recent_runs_list, same_branch_flag):
             # making sure the pr number isn't none before comparing to pr_branch_number
             if run_git_pr_number != None:
 
-                print("PR Number: ", run_git_pr_number)
-                print("Equal: ", run_git_pr_number == int(pr_branch_number))
-
                 # if the PR branch number matches the PR branch number of the branch that the job was run on - we put it into the runs list
                 if run_git_pr_number == int(pr_branch_number):
 
