@@ -19,8 +19,8 @@ inputs:
     required: false
     default: "cloud.getdbt.com"
   github_pr_number:
-    description: the number of the PR
-    required: true
+    description: PR number
+    required: false
   max_runs:
     description: the maximum number of recent runs
     required: false

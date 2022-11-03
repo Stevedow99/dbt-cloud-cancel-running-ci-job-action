@@ -29,7 +29,7 @@ max_runs = os.environ.get('INPUT_MAX_RUNS', '10')
 github_api_token = "token " + os.environ.get('INPUT_GITHUB_REPO_TOKEN', 'not_needed')
 
 # getting the number of the github branch the PR is on - if only_cancel_run_if_commit_is_using_pr_branch ss set to True, this is used
-pr_branch_number = os.environ["INPUT_GITHUB_PR_NUMBER"]
+pr_branch_number = os.environ.get(["INPUT_GITHUB_PR_NUMBER"], 'none')
 
 # getting the name of the github repo the PR is on - if only_cancel_run_if_commit_is_using_pr_branch is set to True, this is used
 pr_repo_name = os.environ.get('GITHUB_REPOSITORY', 'a_repo_name')
