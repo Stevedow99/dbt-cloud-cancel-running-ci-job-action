@@ -180,7 +180,7 @@ def main():
     if len(cancelled_runs) > 0:
 
         # setting the output of the cancelled_jobs_flag
-        print(f"::set-output name=cancelled_jobs_flag::True")
+        print("'cancelled_jobs_flag=True' >> $CANCELLED_JOBS_FLAG")
 
         # generating some markdown to use for PR comments
         pr_comment_markdown_code = "**The following dbt Cloud job runs were cancelled to free up the queue for the new CI job on the current PR:**"
@@ -198,16 +198,16 @@ def main():
             pr_comment_markdown_code += f"<br>  - Run **{run['run_id']}** was cancelled at **{run['run_cancelled_timestamp']} UTC**, view this run in dbt Cloud [here]({run['run_url']})"
 
         # setting the output of the cancelled_dbt_cloud_job_runs
-        print(f"::set-output name=cancelled_dbt_cloud_job_runs::{cancelled_runs_output}")
+        print(f"'cancelled_dbt_cloud_job_runs={cancelled_runs_output}' >> $CANCELLED_DBT_CLOUD_JOB_RUNS")
 
         # setting the output of the cancelled_dbt_cloud_job_markdown
-        print(f"::set-output name=cancelled_dbt_cloud_job_runs_markdown::{pr_comment_markdown_code}")
+        print(f"'cancelled_dbt_cloud_job_runs_markdown={pr_comment_markdown_code}' >> $CANCELLED_DBT_CLOUD_JOB_RUNS_MARKDOWN")
 
     # else we set the cancelled_jobs_flag to False
     else:
 
          # setting the output of the cancelled_jobs_flag
-        print(f"::set-output name=cancelled_jobs_flag::False")
+        print("'cancelled_jobs_flag=False' >> $CANCELLED_JOBS_FLAG")
 
 if __name__ == "__main__":
     main()
