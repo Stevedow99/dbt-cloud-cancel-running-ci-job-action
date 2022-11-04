@@ -208,7 +208,7 @@ def main():
     else:
 
          # setting the output of the cancelled_jobs_flag
-        print('"cancelled_jobs_flag={}" >> $GITHUB_OUTPUT'.format("False"))
+        subprocess('echo "cancelled_jobs_flag={}" >> $GITHUB_OUTPUT'.format("False"))
 
 if __name__ == "__main__":
     main()
