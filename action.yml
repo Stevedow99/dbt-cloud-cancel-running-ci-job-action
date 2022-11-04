@@ -3,7 +3,7 @@ description: "Checks if a dbt cloud CI job is running after a new/updated PR is 
 branding:
   icon: "cloud"
   color: "orange"
-author: "Steve Dowling (modifications by Thomas Monnier)"
+author: "Steve Dowling (contributor: Thomas Monnier)"
 inputs:
   dbt_cloud_token:
     description: dbt Cloud API token
@@ -18,17 +18,17 @@ inputs:
     description: the host url used for the dbt Cloud account, by default cloud.getdbt.com is used
     required: false
     default: "cloud.getdbt.com"
-  github_pr_number:
-    description: PR number
-    required: false
-  max_runs:
-    description: the maximum number of recent runs
-    required: false
-    default: "10"
   only_cancel_run_if_commit_is_using_pr_branch:
     description: "A flag that can be set to True or False. If set to true the action will only cancel runs that are based on the same pr"
     required: false
     default:  false
+  github_pr_number:
+    description: PR number
+    required: false
+  max_runs:
+    description: maximum number of recent runs to retrieve
+    required: false
+    default: "10"
   github_repo_token: 
     description: "A GitHub token for API access - required if only_cancel_run_if_commit_is_using_pr_branch is set to True"
     required: false
