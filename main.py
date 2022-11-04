@@ -1,4 +1,5 @@
 import os
+import subprocess
 import requests
 import time
 
@@ -180,7 +181,7 @@ def main():
     if len(cancelled_runs) > 0:
 
         # setting the output of the cancelled_jobs_flag
-        print('"cancelled_jobs_flag={}" >> $GITHUB_OUTPUT'.format("True"))
+        subprocess('echo "cancelled_jobs_flag={}" >> $GITHUB_OUTPUT'.format("True"))
 
         # generating some markdown to use for PR comments
         pr_comment_markdown_code = "**The following dbt Cloud job runs were cancelled to free up the queue for the new CI job on the current PR:**"
@@ -198,10 +199,10 @@ def main():
             pr_comment_markdown_code += f"<br>  - Run **{run['run_id']}** was cancelled at **{run['run_cancelled_timestamp']} UTC**, view this run in dbt Cloud [here]({run['run_url']})"
 
         # setting the output of the cancelled_dbt_cloud_job_runs
-        print('"cancelled_dbt_cloud_job_runs={}" >> $GITHUB_OUTPUT'.format(cancelled_runs_output))
+        subprocess('echo "cancelled_dbt_cloud_job_runs={}" >> $GITHUB_OUTPUT'.format(cancelled_runs_output))
 
         # setting the output of the cancelled_dbt_cloud_job_markdown
-        print('"cancelled_dbt_cloud_job_runs_markdown={}" >> $GITHUB_OUTPUT'.format(pr_comment_markdown_code))
+        subprocess('echo "cancelled_dbt_cloud_job_runs_markdown={}" >> $GITHUB_OUTPUT'.format(pr_comment_markdown_code))
 
     # else we set the cancelled_jobs_flag to False
     else:
