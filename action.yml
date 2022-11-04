@@ -34,11 +34,11 @@ inputs:
     required: false
 
 outputs:
-  cancelled_jobs_flag:
+  CANCELLED_JOBS_FLAG:
     description: "Returns True if a job or jobs was cancelled, False is no jobs were cancelled"
-  cancelled_dbt_cloud_job_runs:
+  CANCELLED_DBT_CLOUD_JOB_RUNS:
     description: "Returns the cancelled job run ids in a list e.g. ['12345', '56789']"
-  cancelled_dbt_cloud_job_runs_markdown:
+  CANCELLED_DBT_CLOUD_JOB_RUNS_MARKDOWN:
     description: "Pre-Scripted markdown containing info on the cancelled jobs, can be used in PR comments"
 runs:
   using: "docker"
