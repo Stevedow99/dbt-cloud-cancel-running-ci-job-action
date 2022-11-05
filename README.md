@@ -8,6 +8,8 @@ Some scenarios where this is useful:
 - You have longer running CI jobs in your dbt Cloud project and you don't want new commits to get queued when they are replacing stale code that is still running in a previous CI job
 - You have a large team where there is constant commits/PRs against the code base and you always want the latest job to be run without waiting for older jobs to finish
 
+**To view a Loom video of this action being used, click [here](https://www.loom.com/share/ad018bac1f4e469283d1dd9eb3af6463)**
+
 ___
 
 __Updates in `v1.2`__
