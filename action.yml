@@ -23,15 +23,12 @@ inputs:
     required: false
     default:  false
   github_pr_number:
-    description: PR number
+    description: PR number - required if only_cancel_run_if_commit_is_using_pr_branch is set to true
     required: false
   max_runs:
     description: maximum number of recent runs to retrieve
     required: false
     default: "10"
-  github_repo_token: 
-    description: "A GitHub token for API access - required if only_cancel_run_if_commit_is_using_pr_branch is set to True"
-    required: false
 
 outputs:
   cancelled_jobs_flag:
