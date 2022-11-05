@@ -1,9 +1,9 @@
-name: "dbt Cloud Cancel Running CI Job Runs Action"
+name: "dbt Cloud Cancel CI Job Runs Action"
 description: "Checks if a dbt cloud CI job is running after a new/updated PR is made, cancels stale runs to kick of the new CI job run"
 branding:
   icon: "cloud"
   color: "orange"
-author: "Steve Dowling"
+author: "Steve Dowling (contributor: Thomas Monnier)"
 inputs:
   dbt_cloud_token:
     description: dbt Cloud API token
@@ -22,6 +22,13 @@ inputs:
     description: "A flag that can be set to True or False. If set to true the action will only cancel runs that are based on the same pr"
     required: false
     default:  false
+  github_pr_number:
+    description: PR number
+    required: false
+  max_runs:
+    description: maximum number of recent runs to retrieve
+    required: false
+    default: "10"
   github_repo_token: 
     description: "A GitHub token for API access - required if only_cancel_run_if_commit_is_using_pr_branch is set to True"
     required: false
