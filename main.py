@@ -16,7 +16,7 @@ dbt_cloud_account_id = os.environ["INPUT_DBT_CLOUD_ACCOUNT_ID"]
 # setting the dbt cloud job id
 dbt_cloud_job_id = os.environ["INPUT_DBT_CLOUD_JOB_ID"]
 
-# setting the job_check_interval
+# setting the dbt_cloud_host env, by default uses the standard url
 dbt_cloud_host = os.environ.get('INPUT_DBT_CLOUD_HOST', 'cloud.getdbt.com')
 
 # getting the flag only_cancel_run_if_commit_is_using_pr_branch 
@@ -25,9 +25,6 @@ same_branch_flag = os.environ.get('INPUT_ONLY_CANCEL_RUN_IF_COMMIT_IS_USING_PR_B
 
 # getting the maximum number of recent jobs
 max_runs = os.environ.get('INPUT_MAX_RUNS', '10')
-
-# getting the github api token - used only if only_cancel_run_if_commit_is_using_pr_branch is set to True
-github_api_token = "token " + os.environ.get('INPUT_GITHUB_REPO_TOKEN', 'not_needed')
 
 # getting the number of the github branch the PR is on - used only if only_cancel_run_if_commit_is_using_pr_branch is set to True
 pr_branch_number = os.environ.get("INPUT_GITHUB_PR_NUMBER", 'none')
@@ -60,7 +57,7 @@ run_status_map = {
 
 def extract_dbt_runs_info(recent_runs_list, same_branch_flag):
     
-    # setting an empty list to populate with run_ids and statues
+    # setting an empty list to populate with run_ids and statuses
     recent_runs_info = []
     
     # looping thru the recent runs info and pulling out each jobs if and status
@@ -75,12 +72,10 @@ def extract_dbt_runs_info(recent_runs_list, same_branch_flag):
         # getting run url 
         run_url = run["href"]
 
-        # getting the git sha
-        run_git_sha = run['trigger']['git_sha']
-
         # checking if the same branch flag is set to true
         if same_branch_flag == "true":
 
+            # grabbing the pr number from the dbt Cloud job run
             run_git_pr_number = run['trigger']['github_pull_request_id']
             
             # making sure the pr number isn't none before comparing to pr_branch_number
@@ -90,13 +85,13 @@ def extract_dbt_runs_info(recent_runs_list, same_branch_flag):
                 if run_git_pr_number == int(pr_branch_number):
 
                     # appending the elements to the list
-                    recent_runs_info.append({"run_id" : run_id, "run_status" : run_status, "run_url" : run_url, "run_git_sha" : run_git_sha, "run_github_pr_number" : run_git_pr_number })
+                    recent_runs_info.append({"run_id" : run_id, "run_status" : run_status, "run_url" : run_url, "run_github_pr_number" : run_git_pr_number })
 
         # else if the same branch flag is not set to true
         else:
             
             # we add recent runs to the list regardless of branch name
-            recent_runs_info.append({"run_id" : run_id, "run_status" : run_status, "run_url" : run_url, "run_git_sha" : run_git_sha})
+            recent_runs_info.append({"run_id" : run_id, "run_status" : run_status, "run_url" : run_url})
         
     # removing the first fun as this will be the one that was triggered, assuming there are CI runs for the given input
     if len(recent_runs_info) > 0:
@@ -144,7 +139,7 @@ def cancel_dbt_cloud_job(base_url, headers, run_id):
     except:
         run_cancelled_timestamp = cancelled_dbt_cloud_run["data"]["data"]["finished_at"][:19]
 
-    # returning the run status
+    # returning the info on the cancelled runs
     return run_cancelled_timestamp
 
 # ------------------------------------------------------------------------------
@@ -153,7 +148,7 @@ def cancel_dbt_cloud_job(base_url, headers, run_id):
 
 def main():
 
-    # setting up an intial wait period just in case the job takes some time to kick off
+    # setting up an initial wait period just in case the job takes some time to kick off
     time.sleep(10)
 
     # getting the most recent runs of the given job
@@ -162,10 +157,10 @@ def main():
     # creating a list to collect all cancelled runs
     cancelled_runs = []
 
-    # looping the returned run, if there is some running or qued jobs, we cancel them in order to allow the most recent job to kick off
+    # looping the returned run, if there is some running or queued jobs, we cancel them in order to allow the most recent job to kick off
     for run in most_recent_runs:
 
-        # if the run status is in an active state we cancel
+        # if the run status is in an active state, we cancel
         if run["run_status"] in ["Queued", "Starting", "Running"]:
 
             # cancelling the dbt run
