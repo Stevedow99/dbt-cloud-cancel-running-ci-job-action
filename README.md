@@ -10,13 +10,12 @@ Some scenarios where this is useful:
 
 ___
 
-__Updates in `v1.1`__
-- You now have the ability to leverage the `only_cancel_run_if_commit_is_using_pr_branch` flag:
-  - When this flag is set to `true`, CI jobs will only get cancelled if the branch that the CI job is running off of is the same as the branch the PR is using 
-  - Example of using this: If someone kicks off a CI run based off the branch `branch_1` and then someone else kicks off a CI run based on the branch `branch_2` 
-    - When this flag is set to `true` the GitHub Action triggered via the PR on `branch_2` **will not** cancel the CI run based on `branch_1`
-    - When this flag is set to `false` (or not set at all) the GitHub Action **will** cancel the run based on `branch_1` as it doesn't care if the branch is related to the newest PR or not - the behavior is to always get the lastest CI job running regardless of branch
-  - When this flag is set to `true` it requires that the input `github_repo_token` be configured as this feature leverages the GitHub API
+__Updates in `v1.2`__
+- Shifted from using the git sha to pr number when using the `only_cancel_run_if_commit_is_using_pr_branch` (shout-out to ThomasMonnier for doing the work on this!)
+  - Removed the input `github_repo_token` as it is no longer needed
+  - Added the input `github_pr_number`
+- Added the input `max_runs`
+  - Allows the action to look further back than a static ten runs when determining how many running/queued jobs need to get cancelled 
 ___
 
 ## **Inputs**
@@ -33,9 +32,10 @@ ___
    - Example of using this: If someone kicks off a CI run based off the branch `branch_1` and then someone else kicks off a CI run based on the branch `branch_2` 
       - When this flag is set to `true` the GitHub Action triggered via the PR on `branch_2` **will not** cancel the CI run based on `branch_1`
       - When this flag is set to `false` (or not set at all) the GitHub Action **will** cancel the run based on `branch_1` as it doesn't care if the branch is related to the newest PR or not - the behavior is to always get the lastest CI job running regardless of branch
-  - **When this flag is set to `true` it requires that the input `github_repo_token` be configured as this feature leverages the GitHub API**
-- `github_repo_token` - A GitHub API token, in most cases `${{ secrets.GITHUB_TOKEN }}` can be used for this input without having to set GitHub Action secret for the actual token since the action can recognize the repo it's working within. _This is only needed if `only_cancel_run_if_commit_is_using_pr_branch` is set to `true`_
+  - **When this flag is set to `true` it requires that the input `github_pr_number` be configured to `${{ github.event.number }}`**
+- `github_pr_number` - The number of the pull request in GitHub, this is used when limiting cancelling of jobs to just a given PR that is being worked on _This is only needed if `only_cancel_run_if_commit_is_using_pr_branch` is set to `true`_
 - `dbt_cloud_host` - the URL of the dbt cloud account with, by default `cloud.getdbt.com` is used
+- `max_runs` - the number of runs to look back and cancel for a given dbt Cloud job, by default `10` is used
 
 It's recommend to pass sensitive variables as GitHub secrets. [Example article on how to use Github Action secrets](https://www.theserverside.com/blog/Coffee-Talk-Java-News-Stories-and-Opinions/GitHub-Actions-Secrets-Example-Token-Tutorial)
 
@@ -64,7 +64,7 @@ ___
 # This is a basic workflow to show using this action
 
 # name of the workflow
-name: Cancel Running Slim CI Job Runs If New Commit is Made
+name: Cancel running slim ci job runs if new commit is made to the same pull request triggering a new run
 
 # Controls when the workflow will run
 on:
@@ -86,16 +86,17 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
-      # running the step to cancel another other CI job runs that are running except the latest
-      - name: Cancel another other CI runs that are running except the latest run
+      # running the step to cancel another other CI job runs that are running except the latest, only for the given PR
+      - name: Cancel other CI runs that are running for the given PR except the latest run
         id: cancel_stale_ci_runs
-        uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.1
+        uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.2
         with:
           dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
           dbt_cloud_account_id: 12345
           dbt_cloud_job_id: 130247
           only_cancel_run_if_commit_is_using_pr_branch: true
-          github_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          github_pr_number: ${{ github.event.number }}
+          max_runs: "50"
 ```
 
 ### A workflow not using the `only_cancel_run_if_commit_is_using_pr_branch` flag
@@ -103,7 +104,7 @@ jobs:
 # This is a basic workflow to show using this action
 
 # name of the workflow
-name: Cancel Running Slim CI Job Runs If New Commit is Made
+name: Cancel all other running slim ci job runs if new commit is made
 
 # Controls when the workflow will run
 on:
@@ -126,9 +127,9 @@ jobs:
     steps:
 
       # running the step to cancel another other CI job runs that are running except the latest
-      - name: Cancel another other CI runs that are running except the latest run
+      - name: Cancel all other ci runs that are running except the latest run
         id: cancel_stale_ci_runs
-        uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.1
+        uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.2
         with:
           dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
           dbt_cloud_account_id: 12345
@@ -146,7 +147,7 @@ ___
 # This is a basic workflow to show using this action
 
 # name of the workflow
-name: Cancel Running Slim CI Job Runs If New Commit is Made
+name: Cancel running slim ci job runs if new commit is made to the same pull request triggering a new run
 
 # Controls when the workflow will run
 on:
@@ -168,16 +169,17 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
-      # running the step to cancel another other CI job runs that are running except the latest
-      - name: Cancel another other CI runs that are running except the latest run
+      # running the step to cancel another other CI job runs that are running except the latest, only for the given PR
+      - name: Cancel other CI runs that are running for the given PR except the latest run
         id: cancel_stale_ci_runs
-        uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.1
+        uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.2
         with:
           dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
           dbt_cloud_account_id: 12345
           dbt_cloud_job_id: 130247
           only_cancel_run_if_commit_is_using_pr_branch: true
-          github_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          github_pr_number: ${{ github.event.number }}
+          max_runs: "50"
           
       # logging if there was a job run(s) cancelled or not
       - name: Logging if there was a CI run that was cancelled
@@ -203,7 +205,7 @@ This workflow will produce a PR comment that looks like this when job runs are c
 # This is a basic workflow to show using this action
 
 # name of the workflow
-name: Cancel Running Slim CI Job Runs If New Commit is Made
+name: Cancel running slim ci job runs if new commit is made to the same pull request triggering a new run
 
 # Controls when the workflow will run
 on:
@@ -225,16 +227,17 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
-      # running the step to cancel another other CI job runs that are running except the latest
-      - name: Cancel another other CI runs that are running except the latest run
+      # running the step to cancel another other CI job runs that are running except the latest, only for the given PR
+      - name: Cancel other CI runs that are running for the given PR except the latest run
         id: cancel_stale_ci_runs
-        uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.1
+        uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.2
         with:
           dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
           dbt_cloud_account_id: 12345
           dbt_cloud_job_id: 130247
           only_cancel_run_if_commit_is_using_pr_branch: true
-          github_repo_token: ${{ secrets.GITHUB_TOKEN }}
+          github_pr_number: ${{ github.event.number }}
+          max_runs: "50"
           
       # logging if there was a job run(s) cancelled or not
       - name: Logging if there was a CI run that was cancelled
