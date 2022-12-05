@@ -29,6 +29,10 @@ max_runs = os.environ.get('INPUT_MAX_RUNS', '10')
 # getting the number of the github branch the PR is on - used only if only_cancel_run_if_commit_is_using_pr_branch is set to True
 pr_branch_number = os.environ.get("INPUT_GITHUB_PR_NUMBER", 'none')
 
+# getting the flag only_cancel_queued_starting_run
+# one note on this is in YAML it's passed as a bool aka true and in python it comes in as a string
+only_queued_starting = os.environ.get("INPUT_ONLY_CANCEL_QUEUED_STARTING_RUN", 'false')
+
 
 # ------------------------------------------------------------------------------
 # use environment variables to set dbt cloud api configuration
@@ -160,8 +164,18 @@ def main():
     # looping the returned run, if there is some running or queued jobs, we cancel them in order to allow the most recent job to kick off
     for run in most_recent_runs:
 
-        # if the run status is in an active state, we cancel
-        if run["run_status"] in ["Queued", "Starting", "Running"]:
+        # if the run status is in an active state, we cancel accordingly to INPUT_ONLY_CANCEL_QUEUED_STARTING_RUN
+        if only_queued_starting == "true":
+            
+            # cancel only queued and starting dbt runs
+            to_cancel = ["Queued", "Starting"]
+        
+        else:
+            
+            # cancel queued, starting and running dbt runs
+            to_cancel = ["Queued", "Starting", "Running"]
+
+        if run["run_status"] in to_cancel:
 
             # cancelling the dbt run
             run_cancelled_timestamp = cancel_dbt_cloud_job(base_url=base_dbt_cloud_api_url, headers=req_auth_headers, run_id = run["run_id"])
