@@ -29,6 +29,10 @@ inputs:
     description: maximum number of recent runs to retrieve
     required: false
     default: "10"
+  only_cancel_queued_starting_run:
+    description: if set to true, this will only cancel runs in the state of Queued or Starting
+    required: false
+    default: false
 
 outputs:
   cancelled_jobs_flag:
