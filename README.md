@@ -9,15 +9,6 @@ Some scenarios where this is useful:
 - You have a large team where there is constant commits/PRs against the code base and you always want the latest job to be run without waiting for older jobs to finish
 
 **To view a Loom video of this action being used, click [here](https://www.loom.com/share/ad018bac1f4e469283d1dd9eb3af6463)**
-
-___
-
-__Updates in `v1.2`__
-- Shifted from using the git sha to pr number when using the `only_cancel_run_if_commit_is_using_pr_branch` (shout-out to ThomasMonnier for doing the work on this!)
-  - Removed the input `github_repo_token` as it is no longer needed
-  - Added the input `github_pr_number`
-- Added the input `max_runs`
-  - Allows the action to look further back than a static ten runs when determining how many running/queued jobs need to get cancelled 
 ___
 
 ## **Inputs**
@@ -38,6 +29,9 @@ ___
 - `github_pr_number` - The number of the pull request in GitHub, this is used when limiting cancelling of jobs to just a given PR that is being worked on _This is only needed if `only_cancel_run_if_commit_is_using_pr_branch` is set to `true`_
 - `dbt_cloud_host` - the URL of the dbt cloud account with, by default `cloud.getdbt.com` is used
 - `max_runs` - the number of runs to look back and cancel for a given dbt Cloud job, by default `10` is used
+- `only_cancel_queued_starting_run` - A flag that can be set to `true` or `false`
+  - When this flag is set to `true`, the action will only cancel dbt Cloud job runs that are in the state `Queued` or `Starting`
+  - The purpose of this flag is to prevent the action from cancelling jobs that are already running when a new CI job is kicked off. Some use cases require this as they don't want to cancel a job that is halfway completed
 
 It's recommend to pass sensitive variables as GitHub secrets. [Example article on how to use Github Action secrets](https://www.theserverside.com/blog/Coffee-Talk-Java-News-Stories-and-Opinions/GitHub-Actions-Secrets-Example-Token-Tutorial)
 
