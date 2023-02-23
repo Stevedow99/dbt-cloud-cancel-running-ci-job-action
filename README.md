@@ -85,7 +85,7 @@ jobs:
       # running the step to cancel another other CI job runs that are running except the latest, only for the given PR
       - name: Cancel other CI runs that are running for the given PR except the latest run
         id: cancel_stale_ci_runs
-        uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.3
+        uses: Stevedow99/dbt-cloud-cancel-running-ci-job-action@v1.3
         with:
           dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
           dbt_cloud_account_id: 12345
@@ -125,7 +125,7 @@ jobs:
       # running the step to cancel another other CI job runs that are running except the latest
       - name: Cancel all other ci runs that are running except the latest run
         id: cancel_stale_ci_runs
-        uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.3
+        uses: Stevedow99/dbt-cloud-cancel-running-ci-job-action@v1.3
         with:
           dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
           dbt_cloud_account_id: 12345
@@ -168,7 +168,7 @@ jobs:
       # running the step to cancel another other CI job runs that are running except the latest, only for the given PR
       - name: Cancel other CI runs that are running for the given PR except the latest run
         id: cancel_stale_ci_runs
-        uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.3
+        uses: Stevedow99/dbt-cloud-cancel-running-ci-job-action@v1.3
         with:
           dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
           dbt_cloud_account_id: 12345
@@ -226,7 +226,7 @@ jobs:
       # running the step to cancel another other CI job runs that are running except the latest, only for the given PR
       - name: Cancel other CI runs that are running for the given PR except the latest run
         id: cancel_stale_ci_runs
-        uses: stevedow99/dbt-cloud-dynamic-ci-job-cancel-action@v1.3
+        uses: Stevedow99/dbt-cloud-cancel-running-ci-job-action@v1.3
         with:
           dbt_cloud_token: ${{ secrets.DBT_CLOUD_TOKEN }}
           dbt_cloud_account_id: 12345
