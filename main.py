@@ -90,7 +90,7 @@ def extract_dbt_runs_info(recent_runs_list, job_id, same_branch_flag, use_schema
                 schema_override_prefix = f'dbt_cloud_pr_{str(job_id)}_'
                 run_git_pr_number = None if run_schema_override is None else run_schema_override.lstrip(schema_override_prefix)
                 # defaulting to not canceling the job if run_git_pr_number isn't an integer
-                run_git_pr_number = None if not run_git_pr_number.isnumeric() else int(run_git_pr_number)
+                run_git_pr_number = None if run_git_pr_number is None or not run_git_pr_number.isnumeric() else int(run_git_pr_number)
             
             else:
 
