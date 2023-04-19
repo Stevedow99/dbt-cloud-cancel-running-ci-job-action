@@ -81,6 +81,8 @@ def extract_dbt_runs_info(recent_runs_list, job_id, same_branch_flag, use_schema
         # checking if the same branch flag is set to true
         if same_branch_flag == "true":
 
+            subprocess.call('echo "CURRENT_RUN={}"'.format(run), shell=True)
+
             if use_schema_override_flag == "true":
 
                 # grabbing the schema override to parse PR number when CI is triggered by external process
@@ -93,6 +95,8 @@ def extract_dbt_runs_info(recent_runs_list, job_id, same_branch_flag, use_schema
                 # grabbing the pr number from the dbt Cloud job run
                 run_git_pr_number = run['trigger']['github_pull_request_id']
             
+            subprocess.call('echo "CURRENT_RUN_PR={}"'.format(run_git_pr_number), shell=True)
+
             # making sure the pr number isn't none before comparing to pr_branch_number
             if run_git_pr_number != None:
 
