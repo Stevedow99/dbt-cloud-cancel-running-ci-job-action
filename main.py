@@ -34,7 +34,7 @@ pr_branch_number = os.environ.get("INPUT_GITHUB_PR_NUMBER", 'none')
 only_queued_starting = os.environ.get("INPUT_ONLY_CANCEL_QUEUED_STARTING_RUN", 'false')
 
 # getting the flag cancel_runs_based_on_schema_override
-use_schema_override_flag = os.environ.get("cancel_runs_based_on_schema_override", 'false')
+use_schema_override_flag = os.environ.get("INPUT_CANCEL_RUNS_BASED_ON_SCHEMA_OVERRIDE", 'false')
 
 # ------------------------------------------------------------------------------
 # use environment variables to set dbt cloud api configuration
