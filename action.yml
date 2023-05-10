@@ -33,6 +33,13 @@ inputs:
     description: if set to true, this will only cancel runs in the state of Queued or Starting
     required: false
     default: false
+  cancel_runs_based_on_schema_override:
+    description: |
+      if this and `only_cancel_run_if_commit_is_using_pr_branch` are both set to true, 
+      the action will parse the PR number from existing dbt Cloud runs based on their `schema_override`,
+      which is expected to follow the format `dbt_cloud_pr_{dbt_cloud_job_id}_{github_pr_number}` (matching dbt Cloud CI).
+    required: false
+    default: false
 
 outputs:
   cancelled_jobs_flag:

@@ -32,6 +32,9 @@ ___
 - `only_cancel_queued_starting_run` - A flag that can be set to `true` or `false`
   - When this flag is set to `true`, the action will only cancel dbt Cloud job runs that are in the state `Queued` or `Starting`
   - The purpose of this flag is to prevent the action from cancelling jobs that are already running when a new CI job is kicked off. Some use cases require this as they don't want to cancel a job that is halfway completed
+- `cancel_runs_based_on_schema_override` - A flag that can be set to `true` or `false`
+  - When this and `only_cancel_run_if_commit_is_using_pr_branch` are both set to `true`, this action will find the associated PR number of existing dbt runs based on their `schema_override`. Specifically it assumes the `schema_override` will be of the form `dbt_cloud_pr_{dbt_cloud_job_id}_{github_pr_number}`, which matches that of dbt Cloud CI.
+  - The purpose of this flag is to enable canceling stale CI runs even if they weren't triggered directly by the dbt Cloud <> GitHub integration. For example, teams triggering CI jobs via GitHub Actions (or any other CI/CD tool) can still utilize this action, as long as the `schema_override` parameter is configured properly in the CI job.
 
 It's recommend to pass sensitive variables as GitHub secrets. [Example article on how to use Github Action secrets](https://www.theserverside.com/blog/Coffee-Talk-Java-News-Stories-and-Opinions/GitHub-Actions-Secrets-Example-Token-Tutorial)
 

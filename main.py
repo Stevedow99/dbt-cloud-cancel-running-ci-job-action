@@ -33,6 +33,8 @@ pr_branch_number = os.environ.get("INPUT_GITHUB_PR_NUMBER", 'none')
 # one note on this is in YAML it's passed as a bool aka true and in python it comes in as a string
 only_queued_starting = os.environ.get("INPUT_ONLY_CANCEL_QUEUED_STARTING_RUN", 'false')
 
+# getting the flag cancel_runs_based_on_schema_override
+use_schema_override_flag = os.environ.get("INPUT_CANCEL_RUNS_BASED_ON_SCHEMA_OVERRIDE", 'false')
 
 # ------------------------------------------------------------------------------
 # use environment variables to set dbt cloud api configuration
@@ -59,7 +61,7 @@ run_status_map = {
 # creating a function that takes the recent runs and filters them down depending on the same branch flag
 # -------------------------------------------------------------------------------------------------------
 
-def extract_dbt_runs_info(recent_runs_list, same_branch_flag):
+def extract_dbt_runs_info(recent_runs_list, job_id, same_branch_flag, use_schema_override_flag):
     
     # setting an empty list to populate with run_ids and statuses
     recent_runs_info = []
@@ -79,9 +81,20 @@ def extract_dbt_runs_info(recent_runs_list, same_branch_flag):
         # checking if the same branch flag is set to true
         if same_branch_flag == "true":
 
-            # grabbing the pr number from the dbt Cloud job run
-            run_git_pr_number = run['trigger']['github_pull_request_id']
+            if use_schema_override_flag == "true":
+
+                # grabbing the schema override to parse PR number when CI is triggered by external process
+                run_schema_override = run['trigger']['schema_override']
+                schema_override_prefix = f'dbt_cloud_pr_{str(job_id)}_'
+                run_git_pr_number = None if run_schema_override is None else run_schema_override.lstrip(schema_override_prefix)
+                # defaulting to not canceling the job if run_git_pr_number isn't an integer
+                run_git_pr_number = None if run_git_pr_number is None or not run_git_pr_number.isnumeric() else int(run_git_pr_number)
             
+            else:
+
+                # grabbing the pr number from the dbt Cloud job run
+                run_git_pr_number = run['trigger']['github_pull_request_id']
+
             # making sure the pr number isn't none before comparing to pr_branch_number
             if run_git_pr_number != None:
 
@@ -110,7 +123,7 @@ def extract_dbt_runs_info(recent_runs_list, same_branch_flag):
 # setting a function to return the most recent runs for a given job
 # ------------------------------------------------------------------------------
 
-def get_recent_runs_for_job(base_url, headers, job_id, same_branch_flag, max_runs):
+def get_recent_runs_for_job(base_url, headers, job_id, same_branch_flag, max_runs, use_schema_override_flag):
 
     # setting the request url
     dbt_cloud_runs_url = f'{base_url}/runs/?job_definition_id={job_id}&order_by=-id&include_related=["trigger"]&limit={max_runs}'
@@ -120,7 +133,7 @@ def get_recent_runs_for_job(base_url, headers, job_id, same_branch_flag, max_run
     recent_runs = requests.get(dbt_cloud_runs_url, headers=headers, timeout=30).json()
     
     # using the function extract the recent runs
-    recent_runs_info = extract_dbt_runs_info(recent_runs['data'], same_branch_flag)
+    recent_runs_info = extract_dbt_runs_info(recent_runs['data'], job_id, same_branch_flag, use_schema_override_flag)
 
     return recent_runs_info
 
@@ -156,7 +169,7 @@ def main():
     time.sleep(10)
 
     # getting the most recent runs of the given job
-    most_recent_runs = get_recent_runs_for_job(base_url=base_dbt_cloud_api_url, headers=req_auth_headers, job_id=dbt_cloud_job_id, same_branch_flag=same_branch_flag, max_runs=max_runs)
+    most_recent_runs = get_recent_runs_for_job(base_url=base_dbt_cloud_api_url, headers=req_auth_headers, job_id=dbt_cloud_job_id, same_branch_flag=same_branch_flag, max_runs=max_runs, use_schema_override_flag=use_schema_override_flag)
 
     # creating a list to collect all cancelled runs
     cancelled_runs = []
