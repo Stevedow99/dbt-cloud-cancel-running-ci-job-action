@@ -109,12 +109,6 @@ def extract_dbt_runs_info(recent_runs_list, job_id, same_branch_flag, use_schema
             
             # we add recent runs to the list regardless of branch name
             recent_runs_info.append({"run_id" : run_id, "run_status" : run_status, "run_url" : run_url})
-        
-    # removing the first fun as this will be the one that was triggered, assuming there are CI runs for the given input
-    if len(recent_runs_info) > 0:
-       
-       # removing the most current run
-       recent_runs_info.pop(0)
     
     # returning the list of run info 
     return recent_runs_info
