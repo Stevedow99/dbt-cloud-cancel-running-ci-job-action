@@ -1,5 +1,11 @@
 # dbt Cloud Cancel Running CI Job Runs Action
 
+___
+
+# NOTE: This Github action is now obsolete now that this functionality is avalible nativelty within [dbt Cloud CI Jobs](https://docs.getdbt.com/docs/deploy/continuous-integration#smart-cancellation-of-stale-builds)
+- This repo will no longer be updated or supported 
+
+___
 
 This action checks if a [dbt Cloud](https://cloud.getdbt.com) CI job (based on job ID) is running after a new or updated PR commit is made. If there is a job running or there are job runs that are queued - this action will cancel these running and queued runs since they are likely stale as a new commit to the PR has been made. This allows to always have the newest code commit running in the CI job without having to wait for the stale job runs to finish.
 
